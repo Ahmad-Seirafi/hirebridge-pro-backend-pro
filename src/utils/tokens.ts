@@ -1,14 +1,12 @@
-import jwt, { type SignOptions, type Secret } from 'jsonwebtoken';
+import jwt, { type SignOptions, type Secret, type JwtPayload } from 'jsonwebtoken';
 import type { StringValue } from 'ms';
 
-// TTLs بصيغة ms (مثال: '15m'، '7d') أو رقم بالثواني
 const ACCESS_TTL: StringValue | number =
   (process.env.JWT_ACCESS_EXPIRES_IN as StringValue) ?? '15m';
 
 const REFRESH_TTL: StringValue | number =
   (process.env.JWT_REFRESH_EXPIRES_IN as StringValue) ?? '7d';
 
-// أسرار مقيّدة لنوع Secret ليتجنب TS اختيار أوفرلود callback
 const ACCESS_SECRET: Secret = process.env.JWT_ACCESS_SECRET as Secret;
 const REFRESH_SECRET: Secret = process.env.JWT_REFRESH_SECRET as Secret;
 
@@ -26,4 +24,12 @@ export function signAccessToken(payload: object) {
 export function signRefreshToken(payload: object) {
   const opts: SignOptions = { expiresIn: REFRESH_TTL };
   return jwt.sign(payload, REFRESH_SECRET, opts);
+}
+
+export function verifyAccessToken<T extends JwtPayload = JwtPayload>(token: string): T {
+  return jwt.verify(token, ACCESS_SECRET) as T;
+}
+
+export function verifyRefreshToken<T extends JwtPayload = JwtPayload>(token: string): T {
+  return jwt.verify(token, REFRESH_SECRET) as T;
 }
