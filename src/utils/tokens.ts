@@ -1,11 +1,29 @@
-import jwt from 'jsonwebtoken';
-import { env } from '../config/config.js';
+import jwt, { type SignOptions, type Secret } from 'jsonwebtoken';
+import type { StringValue } from 'ms';
+
+// TTLs بصيغة ms (مثال: '15m'، '7d') أو رقم بالثواني
+const ACCESS_TTL: StringValue | number =
+  (process.env.JWT_ACCESS_EXPIRES_IN as StringValue) ?? '15m';
+
+const REFRESH_TTL: StringValue | number =
+  (process.env.JWT_REFRESH_EXPIRES_IN as StringValue) ?? '7d';
+
+// أسرار مقيّدة لنوع Secret ليتجنب TS اختيار أوفرلود callback
+const ACCESS_SECRET: Secret = process.env.JWT_ACCESS_SECRET as Secret;
+const REFRESH_SECRET: Secret = process.env.JWT_REFRESH_SECRET as Secret;
+
+if (!ACCESS_SECRET || !REFRESH_SECRET) {
+  throw new Error(
+    'JWT secrets are missing. Set JWT_ACCESS_SECRET and JWT_REFRESH_SECRET'
+  );
+}
 
 export function signAccessToken(payload: object) {
-  return jwt.sign(payload, env.JWT.ACCESS_SECRET, { expiresIn: env.JWT.ACCESS_EXPIRES_IN });
+  const opts: SignOptions = { expiresIn: ACCESS_TTL };
+  return jwt.sign(payload, ACCESS_SECRET, opts);
 }
+
 export function signRefreshToken(payload: object) {
-  return jwt.sign(payload, env.JWT.REFRESH_SECRET, { expiresIn: env.JWT.REFRESH_EXPIRES_IN });
+  const opts: SignOptions = { expiresIn: REFRESH_TTL };
+  return jwt.sign(payload, REFRESH_SECRET, opts);
 }
-export function verifyAccessToken(token: string) { return jwt.verify(token, env.JWT.ACCESS_SECRET) as any; }
-export function verifyRefreshToken(token: string) { return jwt.verify(token, env.JWT.REFRESH_SECRET) as any; }
