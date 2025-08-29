@@ -1,0 +1,1 @@
+export async function healthHandler(_req:any,res:any){ res.json({ status:'ok' }); }

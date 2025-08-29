@@ -1,0 +1,1 @@
+import { UserModel } from '../models/User.js'; export async function getMe(userId: string){ return UserModel.findById(userId).select('-password'); }
