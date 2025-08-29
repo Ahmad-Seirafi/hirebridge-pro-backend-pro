@@ -7,7 +7,7 @@ import swaggerUi from 'swagger-ui-express';
 import apiRoutes from './routes/index.js';
 import { apiLimiter } from './middleware/rateLimiter.js';
 import { notFound, errorHandler } from './middleware/errorHandler.js';
-import swaggerDoc from './docs/swagger.json' assert { type: 'json' };
+import swaggerDoc from './docs/swagger.json' with  { type: 'json' };
 import path from 'node:path';
 import { env } from './config/config.js';
 import { requestId } from './middleware/requestId.js';
